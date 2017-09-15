@@ -8,10 +8,15 @@ import operate_data as od
 
 def runBest(vector='wordfreq',m_model = ml.naiveBayes):
     ##### 开启记录模式的代码(只记录留一验证后准确率最高的模型) #####
+    xpath = os.path.join('result', 'vector', 'resultX.npz')
+    ypath = os.path.join('result', 'vector', 'resultY.npz')
+    resultX = np.load(xpath)
+    resultY = np.load(ypath)
     logpath = os.path.join('result','log','logfile.plk')
     logfile = None
     with open(logpath,'rb') as f:
         logfile = pickle.load(f)
+
     trainX,trainY,testX,testY,logTrain,logTest = od.randomData(resultX[vector],resultY[vector],0.1,logfile) # 选取最好的vector方法
     model = m_model(trainX,trainY) # 选取最好的机器训练模型
     predictY = [model.predict(x.reshape(1,-1))[0] for x in testX]
@@ -71,23 +76,34 @@ def logBest():
 
     ##### 计算PR并且写入文件 #####
     pr = {} #p:精确率 r:召回率
-    pr['+'] = {\
-        'p':len(arr['+2+'])/(len(arr['+2+'])+len(arr['-2+'])+len(arr['.2+'])),\
-        'r':len(arr['+2+'])/(len(arr['+2+'])+len(arr['+2-'])+len(arr['+2.'])) \
-    }
-    pr['-'] = {\
-        'p':len(arr['-2-'])/(len(arr['-2-'])+len(arr['+2-'])+len(arr['.2-'])),\
-        'r':len(arr['-2-'])/(len(arr['-2-'])+len(arr['-2+'])+len(arr['-2.'])) \
-    }
-    pr['.'] = {\
-        'p':len(arr['.2.'])/(len(arr['.2.'])+len(arr['+2.'])+len(arr['-2.'])),\
-        'r':len(arr['.2.'])/(len(arr['.2.'])+len(arr['.2+'])+len(arr['.2-'])) \
-    }
+    if (len(arr['+2+'])+len(arr['-2+'])+len(arr['.2+'])) and (len(arr['+2+'])+len(arr['+2-'])+len(arr['+2.'])):
+        pr['+'] = {\
+            'p':len(arr['+2+'])/(len(arr['+2+'])+len(arr['-2+'])+len(arr['.2+'])),\
+            'r':len(arr['+2+'])/(len(arr['+2+'])+len(arr['+2-'])+len(arr['+2.'])) \
+        }
+    else :
+        pr['+'] = {'p' : None,'r' :None}
+
+    if (len(arr['-2-'])+len(arr['+2-'])+len(arr['.2-'])) and (len(arr['-2-'])+len(arr['-2+'])+len(arr['-2.'])):
+        pr['-'] = {\
+            'p':len(arr['-2-'])/(len(arr['-2-'])+len(arr['+2-'])+len(arr['.2-'])),\
+            'r':len(arr['-2-'])/(len(arr['-2-'])+len(arr['-2+'])+len(arr['-2.'])) \
+        }
+    else :
+        pr['-'] = {'p':None,'r':None}
+
+    if  (len(arr['.2.'])+len(arr['+2.'])+len(arr['-2.'])) and (len(arr['.2.'])+len(arr['.2+'])+len(arr['.2-'])):
+        pr['.'] = {\
+            'p':len(arr['.2.'])/(len(arr['.2.'])+len(arr['+2.'])+len(arr['-2.'])),\
+            'r':len(arr['.2.'])/(len(arr['.2.'])+len(arr['.2+'])+len(arr['.2-'])) \
+        }
+    else :
+        pr['.'] = {'p':None,'r':None}
     with open(os.path.join('result','log','best_model','PR.json'),'w',encoding="utf-8") as f:
         json.dump(pr,f)
 
 if __name__=='__main__':
     best_vec = 'wordfreq'
-    m_model = ml.naiveBayes
-    runBest(vector = best_vec,m_model= bset_model)
+    best_model = ml.naiveBayes
+    runBest(vector = best_vec,m_model= best_model)
     logBest()
