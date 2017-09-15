@@ -194,16 +194,20 @@ if __name__=='__main__':
         y = []
         for doc in os.listdir(documentPath):
             news = None
-            with open(os.path.join(documentPath,doc),'r',encoding='utf-8') as f:
-                news = f.read()
-            x.append(words2Vec(news,emotionList,stopList,posList,negList,mode=mode))
-            if doc.startswith('neg'):
-                y.append(-1)
-            elif doc.startswith('neu'):
-                y.append(0)
-            else:
-                y.append(1)
-            print('In', mode, os.path.join(documentPath, doc))
+            news_file_path = os.path.join(documentPath,doc)
+
+            if doc[:3] in ('neg','neu','pos'):
+                print(news_file_path)
+                with open(news_file_path,'r',encoding='utf-8') as f:
+                    news = f.read()
+                x.append(words2Vec(news,emotionList,stopList,posList,negList,mode=mode))
+                if doc.startswith('neg'):
+                    y.append(-1)
+                elif doc.startswith('neu'):
+                    y.append(0)
+                else:
+                    y.append(1)
+                print('In', mode, news_file_path)
         resultX.append(np.array(x))
         resultY.append(np.array(y))
 
