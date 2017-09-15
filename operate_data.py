@@ -197,7 +197,6 @@ if __name__=='__main__':
             news_file_path = os.path.join(documentPath,doc)
 
             if doc[:3] in ('neg','neu','pos'):
-                print(news_file_path)
                 with open(news_file_path,'r',encoding='utf-8') as f:
                     news = f.read()
                 x.append(words2Vec(news,emotionList,stopList,posList,negList,mode=mode))
