@@ -36,7 +36,7 @@ def loocv(xData,yData,mode,vecName=None):
     return 1-error/length
 
 def loocvModel():
-    loocvPath = os.path.join('result', 'vector', 'ml_rate.plk')
+    loocvPath = os.path.join('result', 'log', 'ml_rate.plk')
     xpath = os.path.join('result', 'vector', 'resultX.npz')
     ypath = os.path.join('result', 'vector', 'resultY.npz')
     resultX = np.load(xpath)
@@ -52,10 +52,10 @@ def loocvModel():
             print('   [+]Model:', mode, '=> Finished')
     with open(loocvPath, 'wb') as f:
         pickle.dump(accuracyDict, f)
-    print('Over')
+    print('Finish all models')
 
 def showResult():
-    loocvPath = os.path.join('result','log','loocv.plk')
+    loocvPath = os.path.join('result','log','ml_rate.plk')
     loocv = None
     with open(loocvPath,'rb') as f:
         loocv = pickle.load(f)
@@ -72,6 +72,7 @@ def showResult():
         print('Can not call packages about excel')
     finally:
         loocv.to_csv(resultCSV)
+    print('Finish write to excel and csv files')
 
 if __name__=='__main__':
     loocvModel()
