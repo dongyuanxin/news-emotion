@@ -62,19 +62,27 @@ def saveDict(**args):
             with open(name,'w',encoding='utf-8') as f:
                 f.write('\n'.join(mdict))
 
+def savePickle(**args):
+    for (name,mdict) in args.items():
+        try:
+            if not isinstance(mdict,list):
+                raise TypeError("目前仅支持list类型")
+        except Exception as error:
+            pass
+        else:
+            with open(name+'.plk','wb') as f:
+                pickle.dump(mdict,f)
 
 def addWeight(emdict):
     global __jieba_weight
     return list(map(lambda word:str(word)+"  "+str(__jieba_weight),emdict))
 
 def collectDict():
-    pos_dict, neg_dict = collectEmotionWord(posdict_path=__posdict_path, negdict_path=__negdict_path)
-    pos_dict, neg_dict = addWeight(pos_dict), addWeight(neg_dict)
-
-    stop_dict = collectStopWord(__stopdict_path, pos_dict, neg_dict)
-
-    saveDict(userdict=pos_dict + neg_dict, stopword=stop_dict)
-
+    pos_dict, neg_dict = collectEmotionWord(posdict_path=__posdict_path, negdict_path=__negdict_path) # 积极和消极词典
+    pos_w_dict, neg_w_dict = addWeight(pos_dict), addWeight(neg_dict) # 带有权重的积极和消极词典
+    stop_dict = collectStopWord(__stopdict_path, pos_dict, neg_dict) # 停用词典
+    savePickle(stopword = stop_dict,negword = neg_dict,posword = pos_dict)
+    saveDict(userdict=pos_w_dict + neg_w_dict, stopword=stop_dict)
 
 if __name__=='__main__':
     collectDict()
