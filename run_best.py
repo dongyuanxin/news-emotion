@@ -4,7 +4,7 @@ import os
 from collections import OrderedDict # 有序词典
 import numpy as np
 import ml_model as ml
-import OperateData as od
+import operate_data as od
 
 def runBest(vector='wordfreq',m_model = ml.naiveBayes):
     ##### 开启记录模式的代码(只记录留一验证后准确率最高的模型) #####
