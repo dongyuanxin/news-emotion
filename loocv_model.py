@@ -4,7 +4,7 @@ import os
 from collections import OrderedDict # 有序词典
 import numpy as np
 import ml_model as ml
-import OperateData as od
+import operate_data as od
 import pandas as pd
 from pandas import DataFrame
 
@@ -66,8 +66,12 @@ def showResult():
     print(loocv)
     resultExcel = os.path.join('result', 'show','result.xlsx')
     resultCSV = os.path.join('result','show','result.csv')
-    loocv.to_excel(resultExcel)
-    loocv.to_csv(resultCSV)
+    try:
+        loocv.to_excel(resultExcel)
+    except Exception as e:
+        print('Can not call packages about excel')
+    finally:
+        loocv.to_csv(resultCSV)
 
 if __name__=='__main__':
     loocvModel()
