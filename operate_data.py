@@ -184,8 +184,8 @@ if __name__=='__main__':
     resultY = []
     logfile = [] # 留作bug
     for doc in os.listdir(documentPath):
-        logfile.append(doc)
-
+        if doc[:3] in ('pos','neg','neu'):
+            logfile.append(doc)
     with open(os.path.join('result','log','logfile.plk'),'wb') as f:
         pickle.dump(logfile,f) #存取
 
