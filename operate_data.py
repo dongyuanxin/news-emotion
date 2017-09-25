@@ -183,6 +183,12 @@ def randomData(xData,yData,w=0.1,logFile=None):
     return trainX,trainY,testX,testY
 
 
+def twoTag(x_arr,y_arr): # 2分类
+    new_index = (y_arr != 0)
+    new_x = x_arr[new_index, :]  # 所有中性样本
+    new_y = y_arr[new_index]
+    return new_x,new_y
+
 if __name__=='__main__':
     modes = 5 #一共5种word2vec方法
     loadStopwords()
