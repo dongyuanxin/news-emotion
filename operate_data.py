@@ -6,10 +6,15 @@ import jieba
 import jieba.posseg as pseg
 import numpy as np
 
-# from clean_data import clean_html # 县引入ｐｙ文件
-# from .clean_data.clean_html import cleanHtml # 再从ｐｙ文件加载类/函数
-from clean_data.clean_html import cleanHtml
-from langconv import *
+try:
+    from .clean_data.clean_html import cleanHtml
+except Exception as error:
+    from clean_data.clean_html import cleanHtml
+
+try:
+    from .langconv import *
+except Exception as error :
+    from langconv import *
 
 
 dictPath = os.path.join('data','emdict','userdict') # 针对linux兼容
