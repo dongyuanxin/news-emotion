@@ -6,7 +6,7 @@
 ```shell
 cd 你的python脚本目录/
 sudo git clone https://github.com/AsuraDong/news-emotion.git news_emotion
-sudo mv ./news_emotion/data ./
+sudo mv -i ./news_emotion/data/ ./
 ```
 
 ### 1.1 代码使用样例
