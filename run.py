@@ -6,6 +6,22 @@ import ml_model as ml
 
 VECTOR_MODE = {'onehot': 0, 'wordfreq': 1, 'twovec': 2, 'tfidf': 3, 'outofdict': 4}
 
+def save_model(best_vector,best_model):
+    od.loadStopwords()
+    od.loadEmotionwords()
+    od.loadWords(od.stopList)
+    od.loadDocument(od.stopList)
+    xpath = os.path.join('result', 'vector', 'resultX.npz')
+    ypath = os.path.join('result', 'vector', 'resultY.npz')
+    resultX = np.load(xpath)
+    resultY = np.load(ypath)
+    new_x, new_y = od.twoTag(resultX[best_vector], resultY[best_vector])
+    model_saved = ml.linearLogistic(new_x, new_y)
+    path = os.path.join('model','wordfreq_logistic.ml')
+    with open(path,'wb') as f:
+        pickle.dump(model_saved,f)
+    print("Save over")
+
 class Predictor(object):
     def __init__(self):
         self._model = None
@@ -16,7 +32,8 @@ class Predictor(object):
 
     def load_model(self,path=None):
         if not path:
-            path = os.path.join('model','wordfreq_1.ml')
+            path = os.path.join('model','wordfreq_logistic.ml')
+
         with open(path,'rb') as f:
             self._model = pickle.load(f)
 
@@ -47,11 +64,17 @@ class Predictor(object):
         return self.__tag
 
 
-def test():
-    od.loadStopwords()
-    od.loadEmotionwords()
-    od.loadWords(od.stopList)
-    od.loadDocument(od.stopList)
+def test(reload=False):
+    if reload:
+        best_vector = "wordfreq"
+        best_model = 1  # linearLogistic
+        save_model(best_vector, best_model)
+    else:
+        od.loadStopwords()
+        od.loadEmotionwords()
+        od.loadWords(od.stopList)
+        od.loadDocument(od.stopList)
+
     predictor = Predictor()
     predictor.load_model()
     predictor.set_mode(mode="wordfreq")
