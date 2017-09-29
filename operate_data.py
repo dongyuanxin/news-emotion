@@ -12,9 +12,9 @@ except Exception as error:
     from clean_data.clean_html import cleanHtml
 
 try:
-    from .langconv import *
+    from .clean_data.langconv import *
 except Exception as error :
-    from langconv import *
+    from clean_data.langconv import *
 
 
 dictPath = os.path.join('data','emdict','userdict') # 针对linux兼容
