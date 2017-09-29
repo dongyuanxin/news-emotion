@@ -1,5 +1,3 @@
-__author__ == 'asruaDong'
-
 import numpy as np
 import random
 
