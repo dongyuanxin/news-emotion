@@ -22,5 +22,8 @@ def getModel():
     new_x, new_y = od.twoTag(resultX[best_vector], resultY[best_vector])
     model = ml_model.linearLogistic(new_x, new_y)
     return model
+class Predicter(object):
+    def __init__(self):
+        pass
 
 news = "                                                    《经济通通讯社13日专讯》日股早市偏软,日经225指数报18312跌239点。  美元兑日圆疲软,新报108﹒78╱80。(tt)                                                                         "
