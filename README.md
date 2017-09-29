@@ -4,11 +4,11 @@
 ## 1.使用方法
 ### 1.0 下载
 ```shell
-cd 你的python脚本目录/
 sudo git clone https://github.com/AsuraDong/news-emotion.git news_emotion
+mv -R ./news_emotion/ 你的程序路径/
 ```
 
-### 1.1 文件作用和配置
+### 1.1 文件结构
 
 ```python
 clean_data/ # 清洗数据
@@ -52,3 +52,48 @@ README.md
 run.py # 使用者(非开发者)调用框架的样例
 run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的更详细分析
 ```
+
+### 1.2 使用方法
+**请参照`demo.py`的代码**    
+1. 打开`demo.py`
+2. 如果：
+    - **直接使用我们训练好的模型，在`if __name__=='__main__':`里面输入：**
+    ```python
+    od.loadStopwords()
+    od.loadEmotionwords()
+    od.loadWords(od.stopList)
+    od.loadDocument(od.stopList)
+    ##### 单例模式 #####
+    predictor = Predictor()
+    predictor.load_model()
+    predictor.set_mode(mode="wordfreq") # 以上代码是初始化配置，只需要调用一次
+
+    ##### 下面的代码可以循环调用 #####
+    news = "                                                    《经济通通讯社13日专讯》日股早市偏软,日经225指数报18312跌239点。  美元兑日圆疲软,新报108﹒78╱80。(tt)" # 这是您的新闻样本
+
+    predictor.set_news(news=news)
+    predictor.trans_vec()
+
+    tag = predictor() # 分类结果
+    ```
+
+    - 需要重新训练模型，那么在配置好`1.1`的文件后，在`if __name__=='__main__':`里面输入：
+    ```python
+    best_vector = "wordfreq"
+    best_model = 1  # linearLogistic
+    save_model(best_vector, best_model)
+    ##### 单例模式 #####
+    predictor = Predictor()
+    predictor.load_model()
+    predictor.set_mode(mode="wordfreq") # 以上代码是初始化配置，只需要调用一次
+
+    ##### 下面的代码可以循环调用 #####
+    news = "                                                    《经济通通讯社13日专讯》日股早市偏软,日经225指数报18312跌239点。  美元兑日圆疲软,新报108﹒78╱80。(tt)" # 这是您的新闻样本
+
+    predictor.set_news(news=news)
+    predictor.trans_vec()
+
+    tag = predictor()
+    ```
+3. 成功后，相信你也差不多理解框架的用法，请尽情使用吧。
+
