@@ -27,7 +27,7 @@ data/ # 存放训练集和词典
     trainset/ # 存放训练集
         ...
 model/ # 我们训练好的model模型
-    wordfreq_1.ml
+    wordfreq_logistic.ml
 other/ # 根据具体情况自行添加
     ...
 result/ #结果展示
@@ -49,7 +49,7 @@ loocv_model.py # 对组合模型进行留一验证,并且将结果写入csv和ex
 ml_model.py # 集成sklearn常用的自然语言的机器学习模型
 operate_data.py # 将文本处理成词向量,并且保存了logfile.plk
 README.md
-run.py # 使用者(非开发者)调用框架的样例
+demo.py # 使用者(非开发者)调用框架的样例
 run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的更详细分析
 ```
 
