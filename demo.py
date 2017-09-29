@@ -90,6 +90,6 @@ def test(reload=False):
     print("打标的结果是：",tag)
 
 if __name__=='__main__':
-    test()
+    pass
 
 
