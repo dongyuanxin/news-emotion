@@ -1,5 +1,7 @@
 ## 0.快速开始
-挑战杯项目：金融文本情感分析模型  || Challenge Cup Project: Financial Text Emotion Analysis Model
+- 挑战杯项目：金融文本情感分析模型  || Challenge Cup Project: Financial Text Emotion Analysis Model
+- 金融领域短文本情感分析
+- 配置要求：`python 3.x`
 
 ## 1.使用方法
 ### 1.0 下载
@@ -97,3 +99,8 @@ run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的
     ```
 3. 成功后，相信你也差不多理解框架的用法，请尽情使用吧。
 
+## 2. 联系我
+
+WeChat:IT_xxx<br>
+QQ:2592324965<br>
+**Email:xiaochiyijiu@163.com**<br>
