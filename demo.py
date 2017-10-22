@@ -7,6 +7,13 @@ import ml_model as ml
 VECTOR_MODE = {'onehot': 0, 'wordfreq': 1, 'twovec': 2, 'tfidf': 3, 'outofdict': 4}
 
 def save_model(best_vector,best_model):
+    """
+    存储效果最好的模型
+    需要手动指明参数名字
+    :param best_vector: 最好的文本->词向量的方法
+    :param best_model: 最好的机器学习模型
+    :return: info
+    """
     od.loadStopwords()
     od.loadEmotionwords()
     od.loadWords(od.stopList)
@@ -23,6 +30,9 @@ def save_model(best_vector,best_model):
     print("Save over")
 
 class Predictor(object):
+    """
+    更多的使用说明请去看README.md
+    """
     def __init__(self):
         self._model = None
         self.news = None

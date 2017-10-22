@@ -1,13 +1,27 @@
+"""
+收集、生成、存储金融词典
+"""
+#encoding:utf-8
 import os
 import pickle
-import material.emotion_word as em
+# em是知网的情感词和程度词
+try:
+    from material import emotion_word as em
+except Exception as error:
+    from .material import emotion_word as em
 
-__posdict_path = os.path.join('material','NTUSD_simplified','pos.txt')
-__negdict_path = os.path.join('material','NTUSD_simplified','neg.txt')
-__stopdict_path = os.path.join('material','stopword.txt')
-__jieba_weight = 1000000
+__posdict_path = os.path.join('material','NTUSD_simplified','pos.txt') # 积极情感词路径
+__negdict_path = os.path.join('material','NTUSD_simplified','neg.txt') # 消极情感词路径
+__stopdict_path = os.path.join('material','stopword.txt') # 停用词（垃圾词）路径
+__jieba_weight = 1000000 # 添加的新词的权重
 
 def collectEmotionWord(posdict_path,negdict_path):
+    """
+    针对情感词
+    :param posdict_path: 积极情感词路径
+    :param negdict_path: 消极情感词路径
+    :return: 积极词列表和消极词列表
+    """
     posSet = set()
     negSet = set()
     ########## 收集台湾大学NTUSD和知网的积极情感词 ##########
@@ -36,7 +50,13 @@ def collectEmotionWord(posdict_path,negdict_path):
 
 
 def collectStopWord(stopdict_path,*emotion):
-    em_dict = set()
+    """
+    针对停用词
+    :param stopdict_path: 停用词路径
+    :param emotion: 情感词集合
+    :return: 停用词列表
+    """
+    em_dict = set()  # 收集情感词
     for em in emotion:
         for word in em:
             em_dict.add(word)
@@ -46,12 +66,17 @@ def collectStopWord(stopdict_path,*emotion):
     with open(stopdict_path, 'r', encoding='utf-8') as f:
         for line in f.readlines():
             word = line.strip('\n').strip()
-            if word and (word not in em_dict):  # 防止停用词和感情词出错
+            if word and (word not in em_dict):  # 过滤情感词
                 stopSet.add(line.strip('\n').strip())
     return list(stopSet)
 
 
 def saveDict(**args):
+    """
+    存储训练好的词典
+    :param args: 键值对，形式：key(文件名)-value(存储内容)
+    :return: None
+    """
     for (name,mdict) in args.items():
         try:
             if not isinstance(mdict,list):
@@ -62,6 +87,7 @@ def saveDict(**args):
             with open(name,'w',encoding='utf-8') as f:
                 f.write('\n'.join(mdict))
 
+# 作用同：saveDict(**args)
 def savePickle(**args):
     for (name,mdict) in args.items():
         try:
@@ -74,10 +100,16 @@ def savePickle(**args):
                 pickle.dump(mdict,f)
 
 def addWeight(emdict):
+    """
+    为生成的用户词典增加权重（jieba词库分词需要）
+    :param emdict: 不带权重的词列表
+    :return: 带有权重的词列表
+    """
     global __jieba_weight
     return list(map(lambda word:str(word)+"  "+str(__jieba_weight),emdict))
 
-def collectDict():
+# 主函数
+def main():
     pos_dict, neg_dict = collectEmotionWord(posdict_path=__posdict_path, negdict_path=__negdict_path) # 积极和消极词典
     pos_w_dict, neg_w_dict = addWeight(pos_dict), addWeight(neg_dict) # 带有权重的积极和消极词典
     stop_dict = collectStopWord(__stopdict_path, pos_dict, neg_dict) # 停用词典
@@ -85,4 +117,4 @@ def collectDict():
     saveDict(userdict=pos_w_dict + neg_w_dict, stopword=stop_dict)
 
 if __name__=='__main__':
-    collectDict()
+    main()

@@ -1,5 +1,13 @@
+"""
+清洗网页标签
+全角和半角的转换
+"""
+
+#encoding:utf-8
 import re
 
+# 网页中的字符实体
+# 需要更多的补充
 html_char = {}
 html_char['&quot;'] = html_char['&#34;']='"'
 html_char['&apos;'] = html_char['&#39;'] = "'"
@@ -8,7 +16,12 @@ html_char['&lt;'] = html_char['&#60;'] = '<'
 html_char['&gt;'] = html_char['&#62;'] = '>'
 html_char['&nbsp;'] = html_char['&#160;']= ' '
 
-def Q2B(_char):#全角转半角
+def Q2B(_char):
+    """
+    全角字符转半角字符
+    :param _char: 待转换字符
+    :return: 转化后的字符
+    """
     if 65281<=ord(_char)<=65374:
         _char = chr(ord(_char)-65248)
     elif ord(_char)==12288:
@@ -16,24 +29,42 @@ def Q2B(_char):#全角转半角
     return _char
 
 def isQ(Char):
+    """
+    判断是否是全角字符
+    :param Char: 待判断字符
+    :return: bool值
+    """
     return True if (65281<=ord(Char)<=65374 or ord(Char)==12288) else False
 
-def B2Q(_char):#半角转全角
+def B2Q(_char):
+    """
+    半角字符转全角字符
+    :param _char: 待转换字符
+    :return: 转化后的字符
+    """
     if 33<=ord(_char)<=126:
         _char = chr(ord(_char)+65248)
     elif ord(_char)==32:
         _char = chr(12288)
     return _char
 
+# 类似 isQ(Char)
 def isB(Char):
     return True if (33<=ord(Char)<=126 or ord(Char)==32) else False
 
 
 def cleanHtml(html_str,special_char=None,to_char=None):
+    """
+    清洗html标签
+    :param html_str: html文本
+    :param special_char: 自定义的需要处理的特殊字符列表（迭代器类型）
+    :param to_char: special_char的转化目标
+    :return: html中的正文部分
+    """
 
-    #这里留个接口，处理特殊字符串
+    # 如果有需要处理的额外字符
     if special_char:
-        special_rule = re.compile('|'.join(set(special_char)))
+        special_rule = re.compile('|'.join(set(special_char))) # '|'在正则表达式中代表'或'。所有的特殊字符都要替换
         if not to_char:
             to_char = ''
 
@@ -72,14 +103,14 @@ def cleanHtml(html_str,special_char=None,to_char=None):
     raw = html_rule.sub('',raw)
 
     global html_char
-    letter_char = re.compile(r'&[a-z]+;',re.I)
-    for char in letter_char.findall(raw):
-        raw = re.sub(char,html_char[char],raw)
-    '''
-    number_char = re.compile(r'&#\d+;',re.I)
-    for char in number_char.findall(raw):
-        raw = re.sub(char,html_char[char],raw)
-    '''
+    letter_char = re.compile(r'(&[a-z]+;)|(&#\d+;)',re.I)
+    for _,__ in letter_char.findall(raw): # _，__分别对应两种形式的字符实体
+        if _ not in html_char.keys() and __ not in html_char.keys(): # 针对字符实体不在html_char的情况
+            continue
+        if _ in html_char.keys():
+            raw = re.sub(_,html_char[_],raw)
+        else:
+            raw = re.sub(__, html_char[__], raw)
 
     raw_list = list(raw)
     for i in range(len(raw_list)):
@@ -89,7 +120,9 @@ def cleanHtml(html_str,special_char=None,to_char=None):
     
     return raw
 
+# 测试函数
 def test():
+    # 下面是一段html的测试代码
     test_html = """
         
     <div id="sidebar">

@@ -1,3 +1,6 @@
+"""
+集合了清洗数据的函数，例如：简体繁体转化、文本向量化等
+"""
 #encoding:utf-8
 import os
 import pickle
@@ -19,32 +22,34 @@ except Exception as error :
 
 dictPath = os.path.join('data','emdict','userdict') # 针对linux兼容
 jieba.load_userdict(dictPath) # 加载个人词典
-stopwordsPath = os.path.join('data','emdict','stopword.plk')
-negwordsPath = os.path.join('data','emdict','negword.plk')
-poswordsPath = os.path.join('data','emdict','posword.plk')
-documentPath = os.path.join('data','trainset')
+stopwordsPath = os.path.join('data','emdict','stopword.plk') # 停用词
+negwordsPath = os.path.join('data','emdict','negword.plk') # 消极词
+poswordsPath = os.path.join('data','emdict','posword.plk') # 积极词
+documentPath = os.path.join('data','trainset') # 训练样本的目录
 
 stopList = []
 emotionList = []
 posList = []
 negList = []
-wordsList = [] #针对不基于词典，基于所有文档的词
-docList = [] #tf-idf所需要的list，一次性加载，防止多次重复读取
+wordsList = [] # 基于所有训练样本的词袋（针对 不基于词典 这种文本向量化方法）
+docList = [] # 所有文档的词语组成的2维词列表（tf-idf所需要的词列表）
 
 # 转换繁体到简体
 def cht_to_chs(line):
     line = Converter('zh-hans').convert(line)
     line.encode('utf-8')
     return line
+
 # 转换简体到繁体
 def chs_to_cht(line):
     line = Converter('zh-hant').convert(line)
     line.encode('utf-8')
     return line
 
-# 新闻格式一体化
+
 def clearNews(news,mode=False):
     '''
+    新闻格式一体化
     :param news: 包括繁体，网页格式
     :param mode: 默认是繁体->简体
     :return: 清洗后的标准格式news
@@ -83,12 +88,13 @@ def loadWords(stopList,path=documentPath):
     wordsSet = set()
     for file in os.listdir(path):
         news = None
-        with open(os.path.join(path,file),'r',encoding='utf-8') as f:
+        with open(os.path.join(path,file),'r',encoding='utf-8',errors='ignore') as f:
             news = f.read()
-            noun = [word for word, flag in pseg.lcut(news) if flag.startswith('n')]
-            news = set(jieba.cut_for_search(news))
+            noun = [word for word, flag in pseg.lcut(news) if flag.startswith('n')] # 拿到其中的名词列表
+            news = set(jieba.cut(news))
             news = {word for word in news if (word not in stopList) and (word not in noun)}  # 过滤停用词和名词
-        wordsSet = news | wordsSet
+        wordsSet = news | wordsSet # 取集合并集
+    # 最后要使用list类型，因为要保证结果的有序性
     wordsList = list(wordsSet)
     return None
 
@@ -102,29 +108,47 @@ def loadDocument(stopList,path=documentPath):
         with open(os.path.join(path,file),'r',encoding='utf-8') as f:
             news = f.read()
             noun = [word for word, flag in pseg.lcut(news) if flag.startswith('n')]
-            news = list(jieba.cut_for_search(news))
+            news = list(jieba.cut(news))
             news = [word for word in news if (word not in stopList) and (word not in noun)]  # 过滤停用词和名词
         docList.append(news)
     return None
 
-# news翻译成词向量
-def words2Vec(news,emotionList,stopList,posList,negList,mode=0): # 优化：引用global
+
+def words2Vec(news,emotionList,stopList,posList,negList,mode=0):
+    """
+    新闻文本翻译成词向量
+    :param news: 新闻文本
+    :param emotionList: 情感词列表
+    :param stopList: 停用词列表
+    :param posList: 积极词列表
+    :param negList: 消极词列表
+    :param mode: int and [0,5)。对应不同的翻译文本的方法
+    :return: list类型（方便之后的操作，例如，numpy.array()）
+    """
+    # 参数类型检查
     assert isinstance(stopList,list) and isinstance(emotionList,list),"类型不对。Function 'word2vec' at OperateDat.py"
+
     news = clearNews(news)
     noun = [word for word,flag in pseg.lcut(news) if flag.startswith('n')] # 名词列表
-    newswords = list(jieba.cut_for_search(news))
-    newswords = [word for word in newswords if (word not in stopList) and (word not in noun)] #过滤停用词和名词
+
+    # 过滤停用词和名词
+    newswords = list(jieba.cut(news))
+    newswords = [word for word in newswords if (word not in stopList) and (word not in noun)]
+
     wordsVec = []
     # one-hot
+    # time:O(n)
     if mode==0:
         for word in emotionList:
             if word in newswords:  wordsVec.append(1)
             else:  wordsVec.append(0)
     # frequency
+    # time:O(n)
     elif mode==1:
         for word in emotionList:
             wordsVec.append(newswords.count(word))
     # two Vec
+    # time:O(2*n)
     elif mode==2:
         negTimes = 0;posTimes = 0
         for word in posList:
@@ -133,6 +157,7 @@ def words2Vec(news,emotionList,stopList,posList,negList,mode=0): # 优化：引�
             negTimes+=(newswords.count(word))
         wordsVec.append(posTimes);wordsVec.append(negTimes)
     # tf-idf
+    # time:O(2*n*n)
     elif mode==3:
         global docList # 引用加载后的全局变量
         docSum = len(docList) # 第一维len代表了文件数
@@ -149,27 +174,38 @@ def words2Vec(news,emotionList,stopList,posList,negList,mode=0): # 优化：引�
             TF = newswords.count(word)/(times+1)
             wordsVec.append(TF*IDF)
     # out-of-dict
+    # time:O(2*n)
     elif mode==4:
         global wordsList
         for word in wordsList:
             wordsVec.append(newswords.count(word))
+
     return wordsVec
 
-# 数据归一化
+
 def dataNormal(vecArr):
     '''
+    数据归一化
     :param vecArr: array类型vec向量
     :return: 归一化的词向量，减小影响。
     '''
     return (vecArr-vecArr.min())/(vecArr.max()-vecArr.min())
 
-# 随机生成训练集和测试集
-def randomData(xData,yData,w=0.1,logFile=None):
-    np.random.seed(0)
+
+def randomData(xData,yData,w=0.25,logFile=None):
+    """
+    随机生成训练集和测试集
+    :param xData: m*n narray.
+    :param yData: n narray.
+    :param w: 训练集和测试集分割的权重
+    :param logFile: n list. 记录每条数据的tag（例如文件名）
+    :return: 分割好的trainX,trainY,testX,testY[,logTrain,logTest]
+    """
+    np.random.seed(0) # 为了使每次的结果可以比较，要设置一个种子数
     if logFile:
         assert len(logFile)==len(xData)==len(yData),'缺少维度 at OperateData.py'
     else:
-        assert  len(xData)==len(yData),'缺少维度 at OperateData.py'
+        assert len(xData)==len(yData),'缺少维度 at OperateData.py'
     length = len(xData)
     indices = np.random.permutation(length) # 对[0:length]区间的整数随机排列得到对应的index
     trainX = xData[indices[:(-1)*int(w*length)]] # 取出对应的index对应的元素
@@ -183,7 +219,13 @@ def randomData(xData,yData,w=0.1,logFile=None):
     return trainX,trainY,testX,testY
 
 
-def twoTag(x_arr,y_arr): # 2分类
+def twoTag(x_arr,y_arr):
+    """
+    针对二分类方法
+    :param x_arr: m*n narray.
+    :param y_arr: n narray.
+    :return: 剔除中性样本后的新样本
+    """
     new_index = (y_arr != 0)
     new_x = x_arr[new_index, :]  # 所有中性样本
     new_y = y_arr[new_index]
@@ -195,12 +237,16 @@ if __name__=='__main__':
     loadEmotionwords()
     loadWords(stopList)
     loadDocument(stopList)
+
     resultX = []
     resultY = []
     logfile = [] # 留作bug
     for doc in os.listdir(documentPath):
         if doc[:3] in ('pos','neg','neu'):
             logfile.append(doc)
+
+    # logfile存储每个文件id和对应tag
+    # 以后会用它计算结果3*3的矩阵
     with open(os.path.join('result','log','logfile.plk'),'wb') as f:
         pickle.dump(logfile,f) #存取
 
@@ -210,7 +256,6 @@ if __name__=='__main__':
         for doc in os.listdir(documentPath):
             news = None
             news_file_path = os.path.join(documentPath,doc)
-
             if doc[:3] in ('neg','neu','pos'):
                 with open(news_file_path,'r',encoding='utf-8') as f:
                     news = f.read()
