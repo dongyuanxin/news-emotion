@@ -1,10 +1,13 @@
 ## 0.快速开始
-- 挑战杯项目：金融文本情感分析模型  || Challenge Cup Project: Financial Text Emotion Analysis Model
+
+- 挑战杯项目：金融文本情感分析模型 || Challenge Cup Project: Financial Text Emotion Analysis Model
 - 金融领域短文本情感分析
 - 配置要求：`python 3.x`
 
 ## 1.使用方法
+
 ### 1.0 下载
+
 ```shell
 sudo git clone https://github.com/AsuraDong/news-emotion.git news_emotion
 mv -R ./news_emotion/ 你的程序路径/
@@ -56,10 +59,14 @@ run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的
 ```
 
 ### 1.2 使用方法
-**请参照`demo.py`的代码**    
-1. 打开`demo.py`
-2. 如果：
+
+**请参照`demo.py`的代码**
+
+1.  打开`demo.py`
+2.  如果：
+
     - **直接使用我们训练好的模型，在`if __name__=='__main__':`里面输入：**
+
     ```python
     od.loadStopwords()
     od.loadEmotionwords()
@@ -80,6 +87,7 @@ run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的
     ```
 
     - 需要重新训练模型，那么在配置好`1.1`的文件后，在`if __name__=='__main__':`里面输入：
+
     ```python
     best_vector = "wordfreq"
     best_model = 1  # linearLogistic
@@ -97,10 +105,11 @@ run_best.py # 人工找出loocv_model.py的最好结果后,进行最好模型的
 
     tag = predictor()
     ```
-3. 成功后，相信你也差不多理解框架的用法，请尽情使用吧。
+
+3.  成功后，相信你也差不多理解框架的用法，请尽情使用吧。
 
 ## 2. 联系我
 
-WeChat:IT_xxx<br>
-QQ:2592324965<br>
-**Email:xiaochiyijiu@163.com**<br>
+**个人网站**: [YuanXin.me](http://yuanxin.me/)
+
+Email:yuanxin.me@gmail.com
